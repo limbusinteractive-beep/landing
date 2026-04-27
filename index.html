@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LIMBUS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    img {
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 40px;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    p {
+      max-width: 600px;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #222;
+      margin-bottom: 40px;
+
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1.2s ease forwards;
+    }
+
+    a {
+      text-decoration: none;
+      color: #111;
+      border: 1px solid #111;
+      padding: 12px 26px;
+      font-size: 14px;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s ease;
+    }
+
+    a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: #111;
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.3s ease;
+      z-index: -1;
+    }
+
+    a:hover::before {
+      transform: scaleY(1);
+    }
+
+    a:hover {
+      color: #fff;
+    }
+
+    /* Cursor */
+    .cursor {
+      position: fixed;
+      width: 22px;
+      height: 22px;
+      border: 1px solid #111;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 3;
+      transform: translate(-50%, -50%);
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.65; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+  </style>
+</head>
+<body>
+
+<canvas id="trail"></canvas>
+<div class="cursor"></div>
+
+<div class="container">
+  <img src="logo.png" alt="LIMBUS Logo">
+
+  <p>
+    LIMBUS is a creative studio designing immersive audiovisual experiences.
+    We work across art, science, and technology, creating for brands, events,
+    museums, and festivals.
+  </p>
+
+  <a href="mailto:limbus.interactive@gmail.com">CONTACT ↗</a>
+</div>
+
+<script>
+  const cursor = document.querySelector('.cursor');
+  const canvas = document.getElementById('trail');
+  const ctx = canvas.getContext('2d');
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  let trail = [];
+
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+
+    trail.push({
+      x: e.clientX,
+      y: e.clientY,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      life: 1
+    });
+  });
+
+  function draw() {
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.beginPath();
+
+    for (let i = 0; i < trail.length; i++) {
+      let p = trail[i];
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life *= 0.95;
+
+      ctx.lineTo(p.x, p.y);
+    }
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    trail = trail.filter(p => p.life > 0.05);
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+</script>
+
+</body>
+</html>
